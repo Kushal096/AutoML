@@ -123,7 +123,7 @@ async def predict_single(
         user_agent = http_request.headers.get("user-agent", "").lower()
         source_header = http_request.headers.get("x-request-source", "").lower()
         
-        if "taranga" in user_agent or "sdk" in user_agent or source_header == "sdk":
+        if "mlops" in user_agent or "sdk" in user_agent or source_header == "sdk":
             source = "sdk"
         else:
             source = "web"

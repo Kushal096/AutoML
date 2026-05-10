@@ -1,11 +1,11 @@
-# Taranga MLOps SDK
+# MLOps SDK
 
-Python SDK for interacting with the Taranga MLOps Platform.
+Python SDK for interacting with the MLOps Platform.
 
 ## Installation
 
 ```bash
-pip install taranga-mlops
+pip install mlops-sdk
 ```
 
 Or install from source:
@@ -17,11 +17,11 @@ pip install -e .
 ## Quick Start
 
 ```python
-from taranga_mlops import TarangaClient
+from mlops_sdk import MLOpsClient
 import pandas as pd
 
 # Initialize client
-client = TarangaClient(base_url="http://localhost:8000")
+client = MLOpsClient(base_url="http://localhost:8000")
 
 # Login
 client.login(email="user@example.com", password="password")
@@ -172,10 +172,10 @@ alerts = client.get_alerts(project_id)
 ## Error Handling
 
 ```python
-from taranga_mlops import TarangaClient, AuthenticationError, APIError
+from mlops_sdk import MLOpsClient, AuthenticationError, APIError
 
 try:
-    client = TarangaClient()
+    client = MLOpsClient()
     client.login(email="wrong@email.com", password="wrong")
 except AuthenticationError as e:
     print(f"Auth failed: {e}")

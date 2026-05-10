@@ -54,17 +54,17 @@ export default function Docs() {
     setActiveSection(activeSection === section ? null : section);
   };
 
-  const installationCode = `pip install taranga-mlops
+  const installationCode = `pip install mlops-sdk
 
 # Or install from source
 cd sdk
 pip install -e .`;
 
-  const quickStartCode = `from taranga_mlops import TarangaClient
+  const quickStartCode = `from mlops_sdk import MLOpsClient
 import pandas as pd
 
 # Initialize client
-client = TarangaClient(base_url="http://localhost:8000")
+client = MLOpsClient(base_url="http://localhost:8000")
 
 # Login
 client.login(email="user@example.com", password="password")
@@ -172,10 +172,10 @@ dashboard = client.get_dashboard(project_id)
 # Get alerts
 alerts = client.get_alerts(project_id)`;
 
-  const errorHandlingCode = `from taranga_mlops import TarangaClient, AuthenticationError, APIError
+  const errorHandlingCode = `from mlops_sdk import MLOpsClient, AuthenticationError, APIError
 
 try:
-    client = TarangaClient()
+    client = MLOpsClient()
     client.login(email="wrong@email.com", password="wrong")
 except AuthenticationError as e:
     print(f"Auth failed: {e}")
@@ -190,7 +190,7 @@ except APIError as e:
       content: (
         <div className="space-y-4">
           <p className="text-text-primary">
-            Install the Taranga MLOps SDK using pip:
+            Install the MLOps SDK using pip:
           </p>
           <CodeBlock code={installationCode} />
         </div>
@@ -313,7 +313,7 @@ except APIError as e:
             </div>
             <div>
               <h1 className="text-3xl font-bold text-text-primary">SDK Documentation</h1>
-              <p className="text-text-muted mt-1">Python SDK for Taranga MLOps Platform</p>
+              <p className="text-text-muted mt-1">Python SDK for the MLOps Platform</p>
             </div>
           </div>
         </div>
@@ -322,7 +322,7 @@ except APIError as e:
         <div className="card border-2 border-border bg-bg-secondary p-6 mb-8">
           <h2 className="text-xl font-bold text-text-primary mb-3">About the SDK</h2>
           <p className="text-text-primary leading-relaxed">
-            The Taranga MLOps SDK provides a simple Python interface to interact with the Taranga MLOps Platform. 
+            The MLOps SDK provides a simple Python interface to interact with the platform. 
             It features AI-powered system detection, automatic model training, and comprehensive monitoring capabilities.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -382,7 +382,7 @@ except APIError as e:
           <p className="text-text-muted text-sm">
             Need help? Check the{" "}
             <a
-              href="https://github.com/taranga-mlops/sdk"
+              href="https://github.com/example/mlops-sdk"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary hover:underline"

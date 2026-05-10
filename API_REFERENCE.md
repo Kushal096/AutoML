@@ -1,4 +1,4 @@
-# Taranga MLOps API Reference
+# MLOps API Reference
 
 ## 🔐 Authentication
 - `POST /api/v1/auth/signup` - Create account

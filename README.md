@@ -1,235 +1,165 @@
-# Taranga MLOps Platform
+# MLOps Platform
 
-A comprehensive Machine Learning Operations platform that automates the entire ML lifecycle from data ingestion to model deployment and monitoring. Built for the Taranga v1.0 Software Hackathon.
+This is a full-stack MLOps project that automates the machine learning workflow from dataset upload and system detection to training, monitoring, and model comparison. It was built as a student project for a software hackathon.
 
 ## Overview
 
-Taranga is an end-to-end MLOps platform designed to make machine learning accessible and manageable. Whether you're building a recommendation system, predicting customer churn, or deploying any ML model, Taranga provides the infrastructure and tools you need.
+The platform combines three main pieces:
 
-The platform combines a powerful **web dashboard** with a **Python SDK**, giving you flexibility to work however you prefer - through an intuitive UI or programmatically through code.
+- a **FastAPI backend** for authentication, datasets, training, monitoring, and model registry logic
+- a **React + TypeScript web app** for project management and analytics
+- a **Python SDK** for programmatic access from notebooks or scripts
 
-## ✨ Key Features
+The goal is to make ML workflows feel practical, visual, and easy to extend.
 
-### Intelligent System Detection
-Upload your dataset and let our AI-powered analysis automatically detect what type of ML system you need. No need to manually configure algorithms or preprocessing steps.
+## Key Features
 
-### Automated Training Pipeline
-Train models with a single click. The platform handles:
-- Data preprocessing and validation
-- Algorithm selection and hyperparameter tuning
-- Model versioning and artifact storage
-- Performance metrics tracking
+### Intelligent system detection
+Upload a dataset and let the platform infer the likely ML system type, such as churn prediction or recommendation.
 
-### Real-time Monitoring
-Keep your models healthy with continuous monitoring:
-- Track prediction volumes and response times
-- Detect data drift before it impacts performance
-- Compare model versions side-by-side
-- Get alerts when issues arise
+### Automated training workflow
+The backend handles preprocessing, model training, versioning, and metric tracking.
 
-### Model Registry & Comparison
-Manage multiple model versions with ease:
-- Track all model iterations with full lineage
-- Compare metrics across different versions
-- Promote models through staging to production
-- Roll back to previous versions when needed
+### Monitoring and drift detection
+Track metrics over time, compare model versions, and detect dataset drift before it affects performance.
 
-### Beautiful Dashboard
-A clean, modern interface built with React that provides:
-- Real-time analytics and visualizations
-- Project management and organization
-- Dataset upload and management
-- Interactive prediction interface
+### Model registry and comparison
+Store model versions, inspect metadata, and compare runs side by side.
+
+### Web dashboard
+The UI includes:
+
+- login and signup screens
+- dashboard overview
+- project creation and project details pages
+- monitoring views
+- model comparison and docs pages
+- an AI chat assistant for quick guidance
 
 ### Python SDK
-Integrate ML capabilities directly into your Python applications:
-- Simple, intuitive API
-- Full feature parity with web interface
-- Pandas DataFrame support
-- Async-ready for high performance
+The SDK provides a simple interface for:
 
-### 🔐Secure & Scalable
-Enterprise-ready security and architecture:
-- JWT-based authentication
-- API key management
-- Role-based access control
-- MongoDB for scalable data storage
+- authentication
+- project creation
+- dataset upload
+- training and retraining
+- predictions
+- monitoring calls
 
-## 🏗️ Architecture
+## Architecture
 
-The platform is built with a modern, scalable architecture:
+- **Frontend**: React 19, TypeScript, Tailwind CSS, Recharts
+- **Backend**: FastAPI, Beanie, Pydantic, MongoDB
+- **SDK**: Python package using `requests` and `pandas`
 
-- **Frontend**: React 19 with TypeScript, Tailwind CSS, and Recharts for visualizations
-- **Backend**: FastAPI (Python) providing RESTful APIs with automatic OpenAPI documentation
-- **Database**: MongoDB for flexible, scalable data storage
-- **SDK**: Python package for programmatic access
+The services are separated into focused modules for datasets, training, monitoring, prediction, and registry management.
 
-All components communicate via REST APIs, making the system modular and easy to extend.
+## Repository Structure
 
-## 📋 Prerequisites
+```text
+├── backend/              FastAPI backend and ML services
+├── web/                  React dashboard
+├── sdk/                  Python SDK package
+├── model_storage/        Saved model and upload artifacts
+├── churn_prediction_sample.csv
+└── README.md
+```
 
-- **Python 3.10+** for backend and SDK
-- **Node.js 18+** for the web frontend
-- **MongoDB** for data storage
-- **Git** for version control
+## Requirements
 
-## 🚀 Quick Start
+- Python 3.10+
+- Node.js 18+
+- MongoDB
 
-### 1. Set Up MongoDB
+## Quick Start
 
-Using Docker (recommended):
+### 1. Start MongoDB
+
+Using Docker:
+
 ```bash
 docker run -d -p 27017:27017 --name mongodb mongo:latest
 ```
 
-Or install MongoDB locally following the [official guide](https://docs.mongodb.com/manual/installation/).
-
-### 2. Start the Backend
+### 2. Run the backend
 
 ```bash
 cd backend
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate
 pip install -r requirements.txt
 python main.py
 ```
 
-Backend runs at `http://localhost:8000` with API docs at `/docs`
+Backend runs on `http://localhost:8000` and the API docs are available at `/docs`.
 
-### 3. Start the Web Interface
+### 3. Run the web app
 
 ```bash
 cd web
-npm install  # or pnpm install
+npm install
 npm run dev
 ```
 
-Frontend runs at `http://localhost:5173`
+Frontend runs on `http://localhost:5173`.
 
-### 4. Install Python SDK (Optional)
+### 4. Install the SDK
 
 ```bash
 cd sdk
 pip install -e .
 ```
 
-## 📖 Usage
-
-### Web Dashboard
-
-1. **Create an account** at http://localhost:5173
-2. **Create a project** - give it a name and select your ML system type
-3. **Upload your data** - CSV or Excel files supported
-4. **Train your model** - one click to start training
-5. **Monitor & predict** - view metrics, make predictions, check for drift
-
-### Python SDK
+## Example Usage
 
 ```python
-from taranga_mlops import TarangaClient
+from mlops_sdk import MLOpsClient
 import pandas as pd
 
-# Initialize and authenticate
-client = TarangaClient(base_url="http://localhost:8000")
+client = MLOpsClient(base_url="http://localhost:8000")
 client.login(email="user@example.com", password="password")
 
-# Create a project
 project = client.create_project(name="Customer Churn Model")
-
-# Upload data
 data = pd.read_csv("customer_data.csv")
 client.upload_data(project["id"], data)
 
-# Train model
 result = client.train(project["id"])
-
-# Make predictions
-predictions = client.predict(
-    project_id=project["id"],
-    data=new_customer_data
-)
-
-# Monitor performance
-metrics = client.get_metrics(project["id"])
-drift_status = client.get_drift_status(project["id"])
+print(result)
 ```
 
-## 🎓 Supported ML Systems
+## Supported Use Cases
 
-### Recommendation Systems
-Build personalized recommendation engines using:
-- Collaborative filtering
-- Content-based filtering
-- Hybrid approaches
+- recommendation systems
+- customer churn prediction
+- monitoring and retraining workflows
 
-### Churn Prediction
-Predict customer churn with:
-- Gradient boosting models
-- Feature importance analysis
-- Probability scoring
+## Configuration
 
-### More Coming Soon
-The platform is designed to be extensible for additional ML use cases including fraud detection, sentiment analysis, and demand forecasting.
+Create a `backend/.env` file with values like:
 
-## 📁 Project Structure
-
-```
-├── backend/          # FastAPI server and ML services
-├── web/             # React dashboard
-├── sdk/             # Python SDK package
-└── README.md        # This file
-```
-
-Each directory contains its own README with detailed documentation.
-
-## 🔧 Configuration
-
-### Backend Environment Variables
-
-Create `backend/.env`:
 ```env
 MONGODB_URL=mongodb://localhost:27017
-DATABASE_NAME=taranga_db
+DATABASE_NAME=mlops_db
 SECRET_KEY=your-secret-key-here
 ```
 
-### Frontend Configuration
+## Troubleshooting
 
-The frontend automatically connects to the backend at `http://localhost:8000/api/v1`. For production, update the API URL in the environment configuration.
+- Make sure MongoDB is running before starting the backend.
+- Confirm the backend is on port 8000 and the frontend on port 5173.
+- If imports fail, reactivate the virtual environment and reinstall dependencies.
 
-## 🐛 Troubleshooting
+## Tech Stack
 
-**MongoDB Connection Issues**
-- Verify MongoDB is running: `docker ps`
-- Check connection string in backend/.env
-
-**Port Conflicts**
-- Backend uses port 8000
-- Frontend uses port 5173
-- MongoDB uses port 27017
-
-**Module Import Errors**
-- Ensure virtual environment is activated
-- Reinstall dependencies: `pip install -r requirements.txt`
-
-## 🤝 Development
-
-This project was built for the Taranga v1.0 Software Hackathon. The codebase is structured for easy understanding and extension.
-
-### Tech Stack
-- **Backend**: FastAPI, Beanie (MongoDB ODM), Pydantic
-- **Frontend**: React 19, TypeScript, Tailwind CSS, Recharts
+- **Backend**: FastAPI, Beanie, Pydantic
+- **Frontend**: React, TypeScript, Tailwind CSS, Recharts
 - **Database**: MongoDB
-- **ML Libraries**: scikit-learn, pandas, numpy
+- **ML libraries**: scikit-learn, pandas, numpy
 
-## 📝 License
+## License
 
-MIT License - feel free to use this project as a foundation for your own MLOps platform.
-
----
-
-**Built with ❤️ for the Taranga v1.0 Software Hackathon**
+MIT License.
 
 ---
 
-**Built with ❤️ for the Taranga v1.0 Software Hackathon**
+Built with ❤️ for the software hackathon.

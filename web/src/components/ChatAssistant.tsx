@@ -18,7 +18,7 @@ export default function ChatAssistant() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Hello! I'm your AI assistant for the Taranga MLOps platform. I can help you with:\n\n• Understanding your projects and models\n• Interpreting metrics and performance\n• Analyzing drift detection results\n• Providing best practices guidance\n\nHow can I help you today?",
+      content: "Hello! I'm your AI assistant for the MLOps platform. I can help you with:\n\n• Understanding your projects and models\n• Interpreting metrics and performance\n• Analyzing drift detection results\n• Providing best practices guidance\n\nHow can I help you today?",
       timestamp: new Date(),
     },
   ]);

@@ -178,7 +178,7 @@ def build_assistant_prompt(user_message: str, context: Dict[str, Any], conversat
     """
     Build a comprehensive prompt for the AI assistant
     """
-    prompt = """You are an expert AI assistant for the Taranga MLOps platform. You help users with:
+    prompt = """You are an expert AI assistant for the MLOps platform. You help users with:
 - Understanding their ML projects, models, and datasets
 - Interpreting metrics and performance data
 - Providing insights about drift detection
