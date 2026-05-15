@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Netflix Subscription Intelligence – Member Database</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #000000;
+      --bg-secondary: #141414;
+      --bg-tertiary: #1a1a1a;
+      --text-primary: #ffffff;
+      --text-secondary: #b3b3b3;
+      --text-muted: #808080;
+      --accent-netflix: #E50914;
+      --accent-red: #E50914;
+      --accent-green: #46d369;
+      --accent-yellow: #f9c74f;
+      --border-subtle: #2a2a2a;
+      --border-medium: #404040;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Animated background particles */
+    .bg-particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: var(--accent-netflix);
+      border-radius: 50%;
+      animation: float 20s infinite ease-in-out;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
+    }
+
+    /* Header */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10, 10, 15, 0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--accent-netflix);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: white;
+      font-weight: 700;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 24px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--accent-green);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Main container */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 40px 80px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Hero section */
+    .hero {
+      margin-bottom: 48px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -1px;
+    }
+
+    .hero-subtitle {
+      font-size: 18px;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto 32px;
+      font-weight: 400;
+    }
+
+    .hero-tags {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-tertiary);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+      transition: all 0.2s ease;
+    }
+
+    .tag:hover {
+      border-color: var(--border-medium);
+      transform: translateY(-2px);
+    }
+
+    .tag-icon {
+      width: 16px;
+      height: 16px;
+      color: var(--accent-netflix);
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 24px;
+      border: 1px solid var(--border-subtle);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent-netflix), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: var(--border-medium);
+      transform: translateY(-2px);
+      box-shadow: 0 20px 60px rgba(229, 9, 20, 0.15);
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .card h3 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: var(--text-primary);
+      letter-spacing: -0.3px;
+    }
+
+    /* Buttons */
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 14px 28px;
+      border-radius: 10px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: 'Inter', sans-serif;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button.primary {
+      background: var(--accent-netflix);
+      color: white;
+      font-weight: 600;
+    }
+
+    button.primary:hover {
+      background: #f40612;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(229, 9, 20, 0.4);
+    }
+
+    button.secondary {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-medium);
+    }
+
+    button.secondary:hover {
+      background: var(--bg-primary);
+      border-color: var(--accent-netflix);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    /* Table */
+    .table-container {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-tertiary);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: var(--bg-secondary);
+      position: sticky;
+      top: 0;
+    }
+
+    th {
+      padding: 16px 20px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    tbody tr {
+      transition: background 0.15s ease;
+    }
+
+    tbody tr:hover {
+      background: var(--bg-secondary);
+    }
+
+    td {
+      padding: 16px 20px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Status indicators */
+    .high {
+      color: var(--accent-red);
+      font-weight: 600;
+    }
+
+    .low {
+      color: var(--accent-green);
+      font-weight: 600;
+    }
+
+    /* Monitoring cards */
+    .monitoring-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 24px;
+    }
+
+    .metric-card {
+      background: var(--bg-tertiary);
+      padding: 24px;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      transition: all 0.2s ease;
+    }
+
+    .metric-card:hover {
+      border-color: var(--border-medium);
+      transform: translateY(-2px);
+    }
+
+    .metric-label {
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .metric-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .metric-description {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    /* Loading state */
+    .loading {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--border-medium);
+      border-top-color: var(--accent-netflix);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .header-inner {
+        padding: 16px 20px;
+      }
+
+      .container {
+        padding: 24px 20px 60px;
+      }
+
+      .hero h1 {
+        font-size: 32px;
+      }
+
+      .hero-subtitle {
+        font-size: 16px;
+      }
+
+      .card {
+        padding: 24px 20px;
+      }
+
+      button {
+        width: 100%;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Background particles -->
+  <div class="bg-particles" id="particles"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">N</div>
+        <span>NETFLIX</span>
+      </div>
+      <div class="status-badge">
+        <span class="status-dot"></span>
+        <span>Member Database Active</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Hero section -->
+    <div class="hero">
+      <h1>Netflix Subscription Intelligence</h1>
+      <p class="hero-subtitle">
+        Advanced member database with AI-powered retention analytics and automated churn detection
+      </p>
+      <div class="hero-tags">
+        <span class="tag">
+          <svg class="tag-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          Member Analytics
+        </span>
+        <span class="tag">
+          <svg class="tag-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
+          </svg>
+          Viewing Patterns
+        </span>
+        <span class="tag">
+          <svg class="tag-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          Retention AI v3
+        </span>
+      </div>
+    </div>
+
+    <!-- Database card -->
+    <div class="card">
+      <h3>� Netflix Member Database</h3>
+      
+      <div class="button-group">
+        <button class="primary" onclick="generateNewDataset()">
+          Generate Member Cohort
+        </button>
+        <button class="secondary" onclick="runBatch()">
+          🎬 Analyze Retention Risk
+        </button>
+      </div>
+
+      <div class="table-container">
+        <table id="userTable">
+          <thead>
+            <tr>
+              <th>Member ID</th>
+              <th>Plan</th>
+              <th>Watch Hours (30d)</th>
+              <th>Days Inactive</th>
+              <th>Subscription (Mo)</th>
+              <th>Payment Issues</th>
+              <th>Retention Score</th>
+              <th>Risk Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- rows injected -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Monitoring card -->
+    <div class="card">
+      <h3>� Subscription Analytics & Insights</h3>
+      <div id="monitoring">
+        <p style="color: var(--text-secondary); text-align: center; padding: 40px 0;">
+          Generate a member cohort and analyze retention to view insights
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let users = [];
+    const PROJECT_ID = "69640f292febcc2c8e4918cb"; // Project with the trained model
+    const API_BASE = "http://localhost:8000/api/v1";
+
+    // Create animated background particles
+    function createParticles() {
+      const container = document.getElementById('particles');
+      const particleCount = 50;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 20 + 's';
+        particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+        container.appendChild(particle);
+      }
+    }
+
+    // Dynamic user data generation
+    function generateRandomUser(index) {
+      const tiers = ["Basic", "Standard", "Premium"];
+      const tier = tiers[Math.floor(Math.random() * tiers.length)];
+      
+      return {
+        id: `M${String(index + 1).padStart(4, '0')}`,
+        tier: tier,
+        watch: Math.floor(Math.random() * 50) + 1, // 1-50 hours
+        inactive: Math.floor(Math.random() * 30), // 0-29 days
+        tenure: Math.floor(Math.random() * 36) + 1, // 1-36 months
+        payment: Math.floor(Math.random() * 4) // 0-3 payment failures
+      };
+    }
+
+    function generateNewDataset() {
+      const userCount = Math.floor(Math.random() * 20) + 10; // 10-29 users
+      users = Array.from({length: userCount}, (_, i) => generateRandomUser(i));
+      
+      // Clear previous results
+      const tbody = document.querySelector("#userTable tbody");
+      if (tbody) tbody.innerHTML = "";
+      
+      // Reset monitoring
+      document.getElementById("monitoring").innerHTML = `
+        <p style="color: var(--text-secondary); text-align: center; padding: 40px 0;">
+          <span class="loading">
+            <span class="spinner"></span>
+            New member cohort generated with ${userCount} subscribers. Click "Analyze Retention Risk" to run AI analytics.
+          </span>
+        </p>
+      `;
+      
+      // Show initial table structure
+      displayInitialTable();
+    }
+
+    function displayInitialTable() {
+      const table = document.getElementById("userTable");
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th>Member ID</th>
+            <th>Plan</th>
+            <th>Watch Hours (30d)</th>
+            <th>Days Inactive</th>
+            <th>Subscription (Mo)</th>
+            <th>Payment Issues</th>
+            <th>Retention Score</th>
+            <th>Risk Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${users.map(user => `
+            <tr>
+              <td style="color: var(--text-primary); font-weight: 600;">${user.id}</td>
+              <td>${user.tier}</td>
+              <td>${user.watch}</td>
+              <td>${user.inactive}</td>
+              <td>${user.tenure}</td>
+              <td>${user.payment}</td>
+              <td style="color: var(--text-muted);">-</td>
+              <td style="color: var(--text-muted);">-</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      `;
+    }
+
+    // Convert user data to format expected by the model
+    function prepareUserDataForModel(user) {
+      // Convert tier to numerical encoding
+      const tierMapping = { "Basic": 0, "Standard": 1, "Premium": 2 };
+      
+      return {
+        user_id: user.id,
+        tier: tierMapping[user.tier],
+        watch_hours: user.watch,
+        days_inactive: user.inactive,
+        tenure_months: user.tenure,
+        payment_failures: user.payment
+      };
+    }
+
+    async function callBatchPredictionAPI(userData) {
+      try {
+        const response = await fetch(`${API_BASE}/predict_batch_demo`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            project_id: "",
+            input_data: userData
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`API call failed: ${response.status}`);
+        }
+
+        const result = await response.json();
+        return result.predictions;
+      } catch (error) {
+        console.warn("API unavailable, using fallback mock model:", error);
+        return generateMockPredictions(userData);
+      }
+    }
+
+    // Fallback mock predictions when API is unavailable
+    function generateMockPredictions(userData) {
+      return userData.map(user => {
+        // Simulate model predictions with realistic churn probabilities
+        let prob = 0.85;
+        
+        // Model-like scoring based on features
+        if (user.watch_hours < 5) prob -= 0.3;
+        if (user.days_inactive > 14) prob -= 0.25;
+        if (user.tenure_months < 3) prob -= 0.2;
+        if (user.payment_failures > 0) prob -= (user.payment_failures * 0.15);
+        if (user.tier === 2) prob += 0.1; // Premium tier
+        
+        prob = Math.max(0.05, Math.min(0.95, prob));
+        
+        return {
+          user_id: user.user_id,
+          prediction: prob,
+          confidence: Math.random() * 0.3 + 0.7 // 70-100% confidence
+        };
+      });
+    }
+
+    function updateMonitoringSummary(results) {
+      const totalUsers = results.length;
+      const highRiskUsers = results.filter(r => r.risk === "HIGH").length;
+      const lowRiskUsers = results.filter(r => r.risk === "LOW").length;
+      const avgProbability = results.reduce((sum, r) => sum + r.probability, 0) / totalUsers;
+      
+      // Dynamic drift detection based on results
+      const driftDetected = avgProbability < 0.5 || highRiskUsers / totalUsers > 0.4;
+      const driftStatus = driftDetected ? "DETECTED" : "STABLE";
+      const driftClass = driftDetected ? "high" : "low";
+      
+      // Dynamic recommendations
+      let recommendation;
+      let recommendationClass = "low";
+      if (highRiskUsers / totalUsers > 0.5) {
+        recommendation = "Retention campaign needed";
+        recommendationClass = "high";
+      } else if (driftDetected) {
+        recommendation = "Monitor closely";
+        recommendationClass = "high";
+      } else {
+        recommendation = "Healthy subscriber base";
+        recommendationClass = "low";
+      }
+
+      document.getElementById("monitoring").innerHTML = `
+        <div class="monitoring-grid">
+          <div class="metric-card">
+            <div class="metric-label">Total Members</div>
+            <div class="metric-value">${totalUsers}</div>
+            <div class="metric-description">Active subscribers analyzed</div>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-label">High Risk Members</div>
+            <div class="metric-value" style="color: var(--accent-red);">${highRiskUsers}</div>
+            <div class="metric-description">${((highRiskUsers/totalUsers)*100).toFixed(1)}% likely to cancel</div>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-label">Engaged Members</div>
+            <div class="metric-value" style="color: var(--accent-green);">${lowRiskUsers}</div>
+            <div class="metric-description">${((lowRiskUsers/totalUsers)*100).toFixed(1)}% strong retention</div>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-label">Avg Retention Score</div>
+            <div class="metric-value">${(avgProbability * 100).toFixed(1)}%</div>
+            <div class="metric-description">Predicted subscription renewal</div>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-label">Database Health</div>
+            <div class="metric-value ${driftClass}">${driftStatus}</div>
+            <div class="metric-description">Subscriber behavior patterns</div>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-label">Recommended Action</div>
+            <div class="metric-value" style="font-size: 18px; ${recommendationClass === 'high' ? 'color: var(--accent-red);' : 'color: var(--accent-green);'}">${recommendation}</div>
+            <div class="metric-description">AI Model: Retention-v3</div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function runBatch() {
+      if (users.length === 0) {
+        alert("Please generate a member cohort first!");
+        return;
+      }
+
+      // Show loading state
+      document.getElementById("monitoring").innerHTML = `
+        <p style="color: var(--text-secondary); text-align: center; padding: 60px 0;">
+          <span class="loading">
+            <span class="spinner"></span>
+            Analyzing member behavior and calculating retention scores...
+          </span>
+        </p>
+      `;
+
+      try {
+        // Prepare data for the model
+        const modelInputData = users.map(prepareUserDataForModel);
+        
+        // Call the actual model API
+        const predictions = await callBatchPredictionAPI(modelInputData);
+        
+        const tbody = document.querySelector("#userTable tbody");
+        tbody.innerHTML = "";
+
+        const results = [];
+
+        users.forEach((user, index) => {
+          const prediction = predictions[index];
+          const prob = prediction.prediction;
+          const risk = prob < 0.4 ? "HIGH" : "LOW";
+          
+          results.push({ probability: prob, risk: risk });
+
+          const row = `
+            <tr>
+              <td style="color: var(--text-primary); font-weight: 600;">${user.id}</td>
+              <td>${user.tier}</td>
+              <td>${user.watch}</td>
+              <td>${user.inactive}</td>
+              <td>${user.tenure}</td>
+              <td>${user.payment}</td>
+              <td style="font-weight: 600;">${(prob * 100).toFixed(1)}%</td>
+              <td class="${risk === "HIGH" ? "high" : "low"}">${risk}</td>
+            </tr>
+          `;
+
+          tbody.insertAdjacentHTML("beforeend", row);
+        });
+
+        updateMonitoringSummary(results);
+        
+      } catch (error) {
+        document.getElementById("monitoring").innerHTML = 
+          `<p class="high" style="text-align: center; padding: 40px 0;">Error running batch prediction: ${error.message}</p>`;
+        console.error("Batch prediction failed:", error);
+      }
+    }
+
+    // Initialize on page load
+    window.onload = function() {
+      createParticles();
+      generateNewDataset();
+    };
+  </script>
+</body>
+</html>
